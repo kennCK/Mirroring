@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_registration"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.kennck.mirroring.Registration">
+    <Button
+        android:text="Register"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/confirmNewPassword"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:id="@+id/registerButton"
+        android:background="@color/colorPrimary"
+        android:textColor="@android:color/background_light" />
+
+    <Button
+        android:text="Back to Login"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/registerButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
+        android:id="@+id/backToLogin"
+        android:textColor="@android:color/background_light"
+        android:layout_height="50dp"
+        android:background="@color/colorAccent" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:id="@+id/registrationMessage"
+        android:textColor="@android:color/holo_red_dark" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/confirmNewPassword"
+        android:hint="Confirm Password"
+        android:background="@android:drawable/editbox_background"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/newUsername"
+        android:layout_below="@+id/registrationMessage"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Username" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/newEmailAddress"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Email Address"
+        android:layout_below="@+id/newUsername"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/newPassword"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Password"
+        android:layout_below="@+id/newEmailAddress"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp" />
+</RelativeLayout>
