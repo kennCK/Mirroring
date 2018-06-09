@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Account">
+    tools:context=".ViewOnSlave">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -19,39 +19,23 @@
             android:id="@+id/vsLayout">
 
             <Button
-                android:text="Logout"
+                android:text="Back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/accLogout"
+                android:id="@+id/vsBack"
                 android:background="@color/colorAccent" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/accUsername"
+                android:id="@+id/vsCode"
                 android:layout_weight="0.70"
                 android:textAlignment="center" />
-
-            <Button
-                android:id="@+id/viewButton"
-                android:layout_width="73dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                android:text="View" />
         </LinearLayout>
 
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_account" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorPrimary"
-        app:srcCompat="@android:drawable/ic_menu_add" />
+    <include layout="@layout/content_view_on_slave" />
 
 </android.support.design.widget.CoordinatorLayout>

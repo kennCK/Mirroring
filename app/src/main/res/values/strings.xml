@@ -2,4 +2,6 @@
     <string name="app_name">Mirroring</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_account">Account</string>
+    <string name="title_activity_view_on_slave">ViewOnSlave</string>
+    <string name="title_activity_check_code">CheckCode</string>
 </resources>

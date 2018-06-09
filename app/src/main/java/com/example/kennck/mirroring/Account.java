@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 public class Account extends AppCompatActivity {
     Button logout;
-    Button share;
     Button view;
+    Button addFile;
     TextView username;
     SharedPreferences sharedpreferences;
     @Override
@@ -23,8 +23,8 @@ public class Account extends AppCompatActivity {
         setContentView(R.layout.activity_account);
         logout = (Button)findViewById(R.id.accLogout);
         username = (TextView) findViewById(R.id.accUsername);
-        share = (Button)findViewById(R.id.shareButton);
         view = (Button)findViewById(R.id.viewButton);
+        addFile = (Button) findViewById(R.id.addFile);
         sharedpreferences = getSharedPreferences(Helper.MyPREFERENCES, MODE_PRIVATE);
         username.setText(sharedpreferences.getString("username", null));
         logout.setOnClickListener(new View.OnClickListener() {
@@ -36,21 +36,18 @@ public class Account extends AppCompatActivity {
                 startActivity(login);
             }
         });
-        share.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // create code
-                // Intent viewer = new Intent(Account.this, ViewerMaster.class);
-                // viewer.putExtra("code", "1234");
-                // startActivity(viewer);
-            }
-        });
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Intent viewer = new Intent(Account.this, ViewerSlave.class);
-                // viewer.putExtra("code", "1234");
-                // startActivity(viewer);
+                Intent viewer = new Intent(Account.this, ViewOnSlave.class);
+                viewer.putExtra("code", "1234");
+                startActivity(viewer);
+            }
+        });
+        addFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Add File here
             }
         });
     }
