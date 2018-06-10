@@ -9,11 +9,33 @@
     tools:showIn="@layout/activity_check_code">
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/ccCode"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:background="@android:drawable/editbox_background"
+        android:ems="10"
+        android:hint="Code"
+        android:inputType="textPersonName"
+        android:textAlignment="center" />
+
+    <Button
+        android:id="@+id/ccCheck"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="176dp"
+        android:background="@color/colorPrimary"
+        android:text="Check"
+        android:textColor="@android:color/background_light" />
+
+    <TextView
+        android:id="@+id/ccErrorMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="213dp"
+        android:textColor="@android:color/holo_red_dark" />
 </RelativeLayout>

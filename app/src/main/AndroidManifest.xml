@@ -33,7 +33,7 @@
         <activity
             android:name=".CheckCode"
             android:label="@string/title_activity_check_code"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

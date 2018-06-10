@@ -14,9 +14,9 @@ import android.widget.TextView;
 public class Account extends AppCompatActivity {
     Button logout;
     Button view;
-    Button addFile;
     TextView username;
     SharedPreferences sharedpreferences;
+    FloatingActionButton add;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,9 +24,16 @@ public class Account extends AppCompatActivity {
         logout = (Button)findViewById(R.id.accLogout);
         username = (TextView) findViewById(R.id.accUsername);
         view = (Button)findViewById(R.id.viewButton);
-        addFile = (Button) findViewById(R.id.addFile);
         sharedpreferences = getSharedPreferences(Helper.MyPREFERENCES, MODE_PRIVATE);
         username.setText(sharedpreferences.getString("username", null));
+        add = (FloatingActionButton) findViewById(R.id.addFile);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,15 +46,8 @@ public class Account extends AppCompatActivity {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent viewer = new Intent(Account.this, ViewOnSlave.class);
-                viewer.putExtra("code", "1234");
-                startActivity(viewer);
-            }
-        });
-        addFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Add File here
+                Intent checkCode = new Intent(Account.this, CheckCode.class);
+                startActivity(checkCode);
             }
         });
     }
