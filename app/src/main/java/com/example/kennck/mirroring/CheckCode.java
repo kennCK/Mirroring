@@ -43,7 +43,7 @@ public class CheckCode extends AppCompatActivity {
         check = (Button) findViewById(R.id.ccCheck);
         code = (EditText) findViewById(R.id.ccCode);
         message = (TextView) findViewById(R.id.ccErrorMessage);
-        sCode = code.getText().toString();
+
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,12 +55,14 @@ public class CheckCode extends AppCompatActivity {
         check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Submit
-                if(!sCode.trim().equals("")){
+                sCode = code.getText().toString();
+                if(sCode.trim().equals("")){
+                    message.setText("Code is Empty!");
+                }else{
                     RequestQueue queue = Volley.newRequestQueue(CheckCode.this);
                     StringRequest stringRequest = new StringRequest(
                             Request.Method.POST,
-                            Helper.CHECK_CODE,
+                            Helper.RETRIEVE_RECORD,
                             new Response.Listener<String>(){
                                 @Override
                                 public void onResponse (String response) {
@@ -71,6 +73,8 @@ public class CheckCode extends AppCompatActivity {
                                         if(dataArray.length() > 0){
                                             JSONObject object = dataArray.getJSONObject(0);
                                             Intent intent = new Intent(CheckCode.this, ViewOnSlave.class);
+                                            intent.putExtra("code", object.getString("code"));
+                                            intent.putExtra("url", object.getString("url"));
                                             startActivity(intent);
                                         }else{
                                             message.setText("Code not found!");
@@ -84,18 +88,18 @@ public class CheckCode extends AppCompatActivity {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
                                     error.printStackTrace();
+                                    message.setText("Code not found!");
                                 }
                             }){
                         @Override
                         protected Map<String, String> getParams(){
                             Map<String, String> parameter = new HashMap<String, String>();
-                            parameter.put("code", sCode);
+                            parameter.put("value", sCode);
+                            parameter.put("column", "code");
                             return parameter;
                         }
                     };
                     queue.add(stringRequest);
-                }else{
-                    message.setText("Code is Empty!");
                 }
             }
         });

@@ -8,11 +8,23 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_check_code">
 
+    <TextView
+        android:id="@+id/ccErrorMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="150dp"
+        android:ems="10"
+        android:textColor="@android:color/holo_red_dark" />
+
     <EditText
         android:id="@+id/ccCode"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_centerInParent="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="186dp"
         android:background="@android:drawable/editbox_background"
         android:ems="10"
         android:hint="Code"
@@ -23,19 +35,14 @@
         android:id="@+id/ccCheck"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="176dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/ccCode"
         android:background="@color/colorPrimary"
         android:text="Check"
+        android:ems="10"
         android:textColor="@android:color/background_light" />
 
-    <TextView
-        android:id="@+id/ccErrorMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="213dp"
-        android:textColor="@android:color/holo_red_dark" />
+
 </RelativeLayout>

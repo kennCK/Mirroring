@@ -7,5 +7,6 @@ public class Helper {
     public static final String CREATE_ACCOUNT = PUBLIC_FOLDER_API + "accounts/create";
     public static final String RETRIEVE_ACCOUNT = PUBLIC_FOLDER_API + "accounts/retrieve";
     public static final String LOGIN = PUBLIC_FOLDER_API + "accounts/login_mobile";
-    public static final String CHECK_CODE = PUBLIC_FOLDER_API + "accounts/check_code";
+    public static final String CREATE_RECORD = PUBLIC_FOLDER_API + "records/create";
+    public static final String RETRIEVE_RECORD = PUBLIC_FOLDER_API + "records/retrieve";
 }
