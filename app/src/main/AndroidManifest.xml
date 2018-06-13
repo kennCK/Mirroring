@@ -34,6 +34,10 @@
             android:name=".CheckCode"
             android:label="@string/title_activity_check_code"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ViewPdf"
+            android:label="@string/title_activity_view_pdf"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

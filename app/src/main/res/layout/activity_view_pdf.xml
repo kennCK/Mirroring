@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Account">
+    tools:context=".ViewPdf">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -19,39 +18,21 @@
             android:id="@+id/vsLayout">
 
             <Button
-                android:text="Logout"
+                android:text="Back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/accLogout"
+                android:id="@+id/pdfBack"
                 android:background="@color/colorAccent" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/accUsername"
+                android:id="@+id/pdfFilename"
                 android:layout_weight="0.70"
                 android:textAlignment="center" />
-
-            <Spinner
-                android:id="@+id/menuSpinner"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary"
-                android:textColor="@android:color/background_light" />
         </LinearLayout>
-
-
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_account" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorPrimary"
-        app:srcCompat="@android:drawable/ic_menu_add" />
+    <include layout="@layout/content_view_pdf" />
 
 </android.support.design.widget.CoordinatorLayout>

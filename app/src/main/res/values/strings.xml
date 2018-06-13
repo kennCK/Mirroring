@@ -4,4 +4,10 @@
     <string name="title_activity_account">Account</string>
     <string name="title_activity_view_on_slave">ViewOnSlave</string>
     <string name="title_activity_check_code">CheckCode</string>
+    <string name="title_activity_view_pdf">VIewPdf</string>
+    <string-array name="spinner">
+        <item>Action</item>
+        <item>View</item>
+        <item>Share</item>
+    </string-array>
 </resources>

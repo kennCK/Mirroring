@@ -8,9 +8,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -30,12 +32,13 @@ import java.util.Map;
 
 public class Account extends AppCompatActivity {
     Button logout;
-    Button view;
     TextView username;
     SharedPreferences sharedpreferences;
     FloatingActionButton add;
     ArrayAdapter adapter;
+    ArrayAdapter <String> spinnerAdapter;
     ListView listView;
+    Spinner menuSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +46,30 @@ public class Account extends AppCompatActivity {
         setContentView(R.layout.activity_account);
         logout = (Button)findViewById(R.id.accLogout);
         username = (TextView) findViewById(R.id.accUsername);
-        view = (Button)findViewById(R.id.viewButton);
         listView = (ListView) findViewById(R.id.recordList);
         sharedpreferences = getSharedPreferences(Helper.MyPREFERENCES, MODE_PRIVATE);
         username.setText(sharedpreferences.getString("username", null));
         add = (FloatingActionButton) findViewById(R.id.addFile);
+        menuSpinner = (Spinner) findViewById(R.id.menuSpinner);
+        spinnerAdapter = new ArrayAdapter<String>(Account.this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.spinner));
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        menuSpinner.setAdapter(spinnerAdapter);
+        menuSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 1){
+                    Intent askCode = new Intent(Account.this, CheckCode.class);
+                    startActivity(askCode);
+                }else if(position == 2){
+                    // start recording
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,13 +84,6 @@ public class Account extends AppCompatActivity {
                 sharedpreferences.edit().clear().commit();
                 Intent login = new Intent(Account.this, Login.class);
                 startActivity(login);
-            }
-        });
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent checkCode = new Intent(Account.this, CheckCode.class);
-                startActivity(checkCode);
             }
         });
         retrieveRecords();
