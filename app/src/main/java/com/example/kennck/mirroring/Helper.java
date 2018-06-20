@@ -9,4 +9,5 @@ public class Helper {
     public static final String LOGIN = PUBLIC_FOLDER_API + "accounts/login_mobile";
     public static final String CREATE_RECORD = PUBLIC_FOLDER_API + "records/create";
     public static final String RETRIEVE_RECORD = PUBLIC_FOLDER_API + "records/retrieve";
+    public static final String RETRIEVE_RECORD_CUSTOM = PUBLIC_FOLDER_API + "records/retrieve_custom";
 }

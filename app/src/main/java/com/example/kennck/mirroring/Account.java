@@ -2,7 +2,10 @@ package com.example.kennck.mirroring;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +17,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -27,18 +33,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Account extends AppCompatActivity {
+public class Account extends AppCompatActivity implements AdapterView.OnItemClickListener{
     Button logout;
     TextView username;
     SharedPreferences sharedpreferences;
-    FloatingActionButton add;
+    FloatingActionButton addFile;
     ArrayAdapter adapter;
     ArrayAdapter <String> spinnerAdapter;
     ListView listView;
     Spinner menuSpinner;
+    final int FILE_REQUEST = 1;
+    String mediaPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +58,7 @@ public class Account extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.recordList);
         sharedpreferences = getSharedPreferences(Helper.MyPREFERENCES, MODE_PRIVATE);
         username.setText(sharedpreferences.getString("username", null));
-        add = (FloatingActionButton) findViewById(R.id.addFile);
+        addFile = (FloatingActionButton) findViewById(R.id.addFile);
         menuSpinner = (Spinner) findViewById(R.id.menuSpinner);
         spinnerAdapter = new ArrayAdapter<String>(Account.this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.spinner));
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
@@ -70,13 +79,7 @@ public class Account extends AppCompatActivity {
 
             }
         });
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        addFileButton();
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,8 +90,38 @@ public class Account extends AppCompatActivity {
             }
         });
         retrieveRecords();
+        listView.setOnItemClickListener(this);
     }
 
+    private void addFileButton() {
+        addFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectFile();
+            }
+        });
+    }
+
+    private void selectFile() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, FILE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == FILE_REQUEST && resultCode == RESULT_OK && data != null){
+            Uri uri = data.getData();
+
+        }
+    }
+
+    public void fileUpload(Uri url){
+        RequestQueue queue = Volley.newRequestQueue(Account.this);
+
+    }
     public void retrieveRecords(){
         RequestQueue queue = Volley.newRequestQueue(Account.this);
         StringRequest stringRequest = new StringRequest(
@@ -119,8 +152,6 @@ public class Account extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams(){
                 Map<String, String> parameter = new HashMap<String, String>();
-                parameter.put("value", sharedpreferences.getString("id", null));
-                parameter.put("column", "id");
                 return parameter;
             }
         };
@@ -145,5 +176,9 @@ public class Account extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
-
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TextView tv = (TextView)view;
+        Toast.makeText(this, "Code: " + tv.getText() + position, Toast.LENGTH_LONG).show();
+    }
 }

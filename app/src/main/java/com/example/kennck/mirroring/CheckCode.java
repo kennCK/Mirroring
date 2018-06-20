@@ -62,7 +62,7 @@ public class CheckCode extends AppCompatActivity {
                     RequestQueue queue = Volley.newRequestQueue(CheckCode.this);
                     StringRequest stringRequest = new StringRequest(
                             Request.Method.POST,
-                            Helper.RETRIEVE_RECORD,
+                            Helper.RETRIEVE_RECORD_CUSTOM,
                             new Response.Listener<String>(){
                                 @Override
                                 public void onResponse (String response) {
