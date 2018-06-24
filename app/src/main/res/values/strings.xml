@@ -9,5 +9,6 @@
         <item>Action</item>
         <item>View</item>
         <item>Share</item>
+        <item>Stop Sharing</item>
     </string-array>
 </resources>
