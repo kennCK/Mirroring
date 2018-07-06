@@ -1,87 +1,78 @@
 package com.example.kennck.mirroring;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.net.Uri;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.MenuItem;
-import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.JsonArray;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Account extends AppCompatActivity implements AdapterView.OnItemClickListener{
     Button logout;
     TextView username;
-    SharedPreferences sharedpreferences;
-    FloatingActionButton addFile;
-    ArrayAdapter adapter;
-    ArrayAdapter <String> spinnerAdapter;
     ListView listView;
     Spinner menuSpinner;
-    final int FILE_REQUEST = 1;
+    FloatingActionButton addFile;
+
+
+    SharedPreferences sharedpreferences;
+    ArrayAdapter adapter;
+    ArrayAdapter <String> spinnerAdapter;
+
     MediaProjectionManager mediaProjectionManager;
     MediaProjection mediaProjection;
     VirtualDisplay virtualDisplay;
-    final int RECORDCODEREQUEST = 500;
+
+
     MediaRecorder mediaRecorder;
+    final int RECORDCODEREQUEST = 500;
     private final int WIDTH = 720;
     private final int HEIGHT = 1280;
+    private final String DIRECTORY = Helper.DIRECTORY;
     int screenDensity;
-    String filepath;
+
+    VideoAdapter videoAdapter;
+    List<Video> videoList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
-        logout = (Button)findViewById(R.id.accLogout);
-        username = (TextView) findViewById(R.id.accUsername);
-        listView = (ListView) findViewById(R.id.recordList);
+        initItems();
         sharedpreferences = getSharedPreferences(Helper.MyPREFERENCES, MODE_PRIVATE);
         username.setText(sharedpreferences.getString("username", null));
         addFile = (FloatingActionButton) findViewById(R.id.addFile);
@@ -90,17 +81,29 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         menuSpinner.setAdapter(spinnerAdapter);
         mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        filepath = null;
+        newRecordingListener();
+        retrieveLocalRecordings();
+        btnListeners();
+
+    }
+
+    public void initItems(){
+        logout = (Button)findViewById(R.id.accLogout);
+        username = (TextView) findViewById(R.id.accUsername);
+        listView = (ListView) findViewById(R.id.recordList);
+    }
+
+    public void btnListeners(){
+
         menuSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(position == 1){
-                    Intent askCode = new Intent(Account.this, CheckCode.class);
-                    startActivity(askCode);
+                    Intent wifi = new Intent(Account.this, WifiHandler.class);
+                    startActivity(wifi);
                 }else if(position == 2){
-                    askRecordPermission();
-                }else if(position == 3){
                     stopRecording();
+                    // stopRTCRecording();
                 }
             }
 
@@ -109,7 +112,7 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
 
             }
         });
-        addFileButton();
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,7 +122,8 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 startActivity(login);
             }
         });
-        retrieveRecords();
+
+
         listView.setOnItemClickListener(this);
     }
 
@@ -132,6 +136,15 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         super.onDestroy();
     }
 
+    private void newRecordingListener() {
+        addFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                askRecordPermission();
+            }
+        });
+    }
+
     public void askRecordPermission(){
         if(mediaProjection == null){
             startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), RECORDCODEREQUEST);
@@ -140,95 +153,53 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         }
     }
 
-    private void addFileButton() {
-        addFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectFile();
-            }
-        });
-    }
-
-    private void selectFile() {
-        Intent intent = new Intent();
-        intent.setType("video/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, FILE_REQUEST);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == FILE_REQUEST && resultCode == RESULT_OK && data != null){
-            Uri uri = data.getData();
-        }else if(requestCode == RECORDCODEREQUEST && resultCode == RESULT_OK && data != null){
+        if(requestCode == RECORDCODEREQUEST && resultCode == RESULT_OK && data != null){
             mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
             initMediaRecorder();
         }
     }
 
-    public void fileUpload(Uri url){
-        RequestQueue queue = Volley.newRequestQueue(Account.this);
-
-    }
-    public void retrieveRecords(){
-        RequestQueue queue = Volley.newRequestQueue(Account.this);
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.POST,
-                Helper.RETRIEVE_RECORD,
-                new Response.Listener<String>(){
-                    @Override
-                    public void onResponse (String response) {
-                        try {
-                            JSONObject data = new JSONObject(response);
-                            JSONArray dataArray = data.getJSONArray("data");
-                            if(dataArray.length() > 0){
-                                displayRecords(response);
-                            }else{
-                                displayRecordsEmpty("Empty");
-                            }
-                        } catch (JSONException e) {
-                            displayRecordsEmpty("Empty");
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                }){
-            @Override
-            protected Map<String, String> getParams(){
-                Map<String, String> parameter = new HashMap<String, String>();
-                return parameter;
+    public void retrieveLocalRecordings(){
+        File file = new File(getPath());
+        videoList = new ArrayList<Video>();
+        if (file.isDirectory()) {
+            File[] fileArr = file.listFiles();
+            int length = (fileArr != null) ? fileArr.length : 0;
+            for (int i = 0; i < length; i++) {
+                File f = fileArr[i];
+                videoList.add(new Video(getPath(),  f.getName()));
             }
-        };
-        queue.add(stringRequest);
-    }
-
-    public void displayRecords(String response) throws JSONException {
-        JSONObject data = new JSONObject(response);
-        JSONArray dataArray = data.getJSONArray("data");
-        String[] mobileArray = new String[dataArray.length()];
-        for (int i = 0; i < dataArray.length(); i++){
-            JSONObject object = dataArray.getJSONObject(i);
-            mobileArray[i] = object.getString("code");
+            videoAdapter = new VideoAdapter(this, videoList);
+            // adapter = new ArrayAdapter<String>(this, R.layout.content_text_view, videosString);
+            listView.setAdapter(videoAdapter);
+        }else{
+            // displayRecordsEmpty("No Recordings Found");
         }
-        adapter = new ArrayAdapter<String>(this, R.layout.content_list_view, mobileArray);
-        listView.setAdapter(adapter);
     }
 
-    public void  displayRecordsEmpty(String str){
-        String[] array = {str};
-        adapter = new ArrayAdapter<String>(this, R.layout.content_list_view, array);
-        listView.setAdapter(adapter);
+    public String getPath(){
+        String path = null;
+        String state = Environment.getExternalStorageState();
+        if(Environment.MEDIA_MOUNTED.equals(state)){
+            path = Environment.getExternalStorageDirectory() + DIRECTORY;
+        }else if(Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)){
+            path = getApplicationContext().getFilesDir() + DIRECTORY;
+        }else {
+            path = getApplicationContext().getFilesDir() + DIRECTORY;
+        }
+        return path;
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TextView tv = (TextView)view;
-        Toast.makeText(this, "Code: " + tv.getText() + position, Toast.LENGTH_LONG).show();
+        Intent recorded = new Intent(Account.this, ViewRecorded.class);
+        Video details = (Video) parent.getItemAtPosition(position);
+        recorded.putExtra("filename", details.getFilename());
+        startActivity(recorded);
     }
 
     public void initMediaRecorder(){
@@ -242,20 +213,13 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         mediaRecorder.setVideoEncodingBitRate(512 * 1000);
         mediaRecorder.setVideoFrameRate(30);
         mediaRecorder.setOutputFile(getFilePathDirectory());
+
+        // mediaRecorder.setOutputFile(String.valueOf(new SocketHandler().execute("http://mirroring.classworx.co/public")));
         prepareMediaRecorder();
     }
 
-    public void getFilePath(){
-        File f;
-        do{
-            String filename = sharedpreferences.getString("username", null) + "_" + (System.currentTimeMillis()) + ".mp4";
-            filepath += "/Recorder/" + filename;
-            f = new File(filepath);
-        }while(f.exists() && !f.isDirectory());
-    }
-
     public String getFilePathDirectory(){
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording/";
+        String path = getPath();
         File dir = new File(path);
         if(!dir.exists()){
             dir.mkdir();

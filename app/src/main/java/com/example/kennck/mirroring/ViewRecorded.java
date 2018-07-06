@@ -5,53 +5,47 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import org.w3c.dom.Text;
-
-public class ViewOnSlave extends AppCompatActivity {
+public class ViewRecorded extends AppCompatActivity {
     Button back;
-    TextView code;
+    TextView filename;
     VideoView videoView;
     ProgressDialog progressDialog;
     MediaController mediaController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_on_slave);
-        back = (Button) findViewById(R.id.vsBack);
-        code = (TextView) findViewById(R.id.vsCode);
+        setContentView(R.layout.activity_view_recorded);
+        back = (Button) findViewById(R.id.vrBack);
+        filename = (TextView) findViewById(R.id.vrFilename);
         Intent intent = getIntent();
-        code.setText(intent.getStringExtra("code"));
+        filename.setText(intent.getStringExtra("filename"));
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent account = new Intent(ViewOnSlave.this, Account.class);
+                Intent account = new Intent(ViewRecorded.this, Account.class);
                 startActivity(account);
             }
         });
-        videoView = (VideoView) findViewById(R.id.videoViewSlave);
-        progressDialog = new ProgressDialog(ViewOnSlave.this);
+        videoView = (VideoView) findViewById(R.id.videoViewRecorded);
+        progressDialog = new ProgressDialog(ViewRecorded.this);
         progressDialog.setTitle("Screen Mirroring");
         progressDialog.setMessage("Bufferring....");
         progressDialog.setIndeterminate(false);
         progressDialog.setCancelable(true);
         progressDialog.show();
 
-        mediaController = new MediaController(ViewOnSlave.this);
+        mediaController = new MediaController(ViewRecorded.this);
         mediaController .setAnchorView(videoView);
-        String url = intent.getStringExtra("url");
-        Uri uri = Uri.parse(url);
         videoView.setMediaController(mediaController);
-        videoView.setVideoURI(uri);
+        videoView.setVideoPath(getPath() + intent.getStringExtra("filename"));
         videoView.requestFocus();
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -60,5 +54,19 @@ public class ViewOnSlave extends AppCompatActivity {
                 videoView.start();
             }
         });
+    }
+
+    public String getPath(){
+        String path = null;
+        String state = Environment.getExternalStorageState();
+
+        if(Environment.MEDIA_MOUNTED.equals(state)){
+            path = Environment.getExternalStorageDirectory() + Helper.DIRECTORY;
+        }else if(Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)){
+            path = getApplicationContext().getFilesDir() + Helper.DIRECTORY;
+        }else{
+            path = getApplicationContext().getFilesDir() + Helper.DIRECTORY;
+        }
+        return path;
     }
 }

@@ -9,7 +9,7 @@
     tools:showIn="@layout/activity_view_on_slave">
 
     <VideoView
-        android:id="@+id/videoView"
+        android:id="@+id/videoViewSlave"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

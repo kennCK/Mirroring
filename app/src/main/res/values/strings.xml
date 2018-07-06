@@ -6,9 +6,9 @@
     <string name="title_activity_check_code">CheckCode</string>
     <string name="title_activity_view_pdf">VIewPdf</string>
     <string-array name="spinner">
-        <item>Action</item>
-        <item>View</item>
-        <item>Share</item>
-        <item>Stop Sharing</item>
+        <item>Menu</item>
+        <item>Connect</item>
+        <item>Stop</item>
     </string-array>
+    <string name="title_activity_wifi_handler">WifiHandler</string>
 </resources>

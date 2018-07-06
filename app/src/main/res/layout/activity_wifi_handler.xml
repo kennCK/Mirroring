@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Account">
+    tools:context=".WifiHandler">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -16,42 +16,29 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:id="@+id/vsLayout">
+            android:id="@+id/wHLayout">
 
             <Button
-                android:text="Logout"
+                android:text="Back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/accLogout"
+                android:id="@+id/wHBack"
                 android:background="@color/colorAccent" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/accUsername"
+                android:id="@+id/wHCode"
                 android:layout_weight="0.70"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:text="Wifi Handler"/>
 
-            <Spinner
-                android:id="@+id/menuSpinner"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorPrimary"
-                android:textColor="@android:color/background_light" />
+
         </LinearLayout>
-
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_account" />
+    <include layout="@layout/content_wifi_handler" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorPrimary"
-        app:srcCompat="@android:drawable/presence_video_online" />
 
 </android.support.design.widget.CoordinatorLayout>
