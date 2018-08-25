@@ -8,40 +8,32 @@
     tools:context=".WifiHandler"
     tools:showIn="@layout/activity_wifi_handler">
 
-    <ToggleButton
-        android:id="@+id/wifiToggleBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="67dp"
-        android:layout_marginTop="53dp"
-        android:text="ToggleButton" />
-
-    <ListView
-        android:id="@+id/whListView"
-        android:layout_width="match_parent"
-        android:layout_height="409dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:id="@+id/wifiDiscoverBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/wifiToggleBtn"
-        android:layout_marginEnd="101dp"
-        android:text="Discover" />
-
     <TextView
         android:id="@+id/wifiStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/wifiToggleBtn"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="-53dp"
         android:textAlignment="center"
         android:textColor="@android:color/holo_blue_light"
-        android:textSize="14dp" />
+        android:textSize="16sp" />
+
+    <ListView
+        android:id="@+id/whListView"
+        android:layout_width="match_parent"
+        android:layout_height="484dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp" />
+
+    <ImageView
+        android:id="@+id/imageViewer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/app_name"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
 </RelativeLayout>

@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.kennck.mirroring.objects.Helper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -125,6 +125,13 @@ public class Login extends AppCompatActivity {
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{Manifest.permission.RECORD_AUDIO},
+                    99);
+        }
+
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.INTERNET},
                     100);
         }
 

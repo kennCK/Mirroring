@@ -3,7 +3,6 @@ package com.example.kennck.mirroring;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +11,8 @@ import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
+
+import com.example.kennck.mirroring.objects.Helper;
 
 public class ViewRecorded extends AppCompatActivity {
     Button back;

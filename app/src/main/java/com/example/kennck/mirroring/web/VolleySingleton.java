@@ -1,4 +1,4 @@
-package com.example.kennck.mirroring;
+package com.example.kennck.mirroring.web;
 
 import android.content.Context;
 import android.graphics.Bitmap;

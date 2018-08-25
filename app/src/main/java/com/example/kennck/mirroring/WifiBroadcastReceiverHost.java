@@ -4,23 +4,23 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 import android.widget.Toast;
 
-public class WifiBroadcastReceiver extends BroadcastReceiver  {
+import com.example.kennck.mirroring.network.WifiDirectMaster;
+
+public class WifiBroadcastReceiverHost extends BroadcastReceiver {
     private final String TAG = "BroadcastReceiver";
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
-    private WifiHandler mActivity;
+    private Account activity;
 
-    public WifiBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, WifiHandler activity) {
+    public WifiBroadcastReceiverHost(WifiP2pManager manager, WifiP2pManager.Channel channel, Account activity) {
         super();
         this.mManager = manager;
         this.mChannel = channel;
-        this.mActivity = activity;
+        this.activity = activity;
     }
 
     @Override
@@ -35,9 +35,8 @@ public class WifiBroadcastReceiver extends BroadcastReceiver  {
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             if (mManager != null) {
-                mManager.requestPeers(mChannel, mActivity.peerListListener);
+                mManager.requestPeers(mChannel, activity.peerListListener);
             }
-
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
             Log.d(TAG, "onReceive: Connection Changed");
             if(mManager == null){
@@ -45,11 +44,10 @@ public class WifiBroadcastReceiver extends BroadcastReceiver  {
             }
             NetworkInfo networkInfo =  intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if(networkInfo.isConnected()){
-                mManager.requestConnectionInfo(mChannel, mActivity.connectionInfoListener);
+                mManager.requestConnectionInfo(mChannel, activity.connectionInfoListener);
             }else{
-                mActivity.connectStatus.setText("Device Disconnected");
+                Toast.makeText(activity, "Network Device Disconected", Toast.LENGTH_SHORT).show();
             }
-
         } else if(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)){
             Log.d(TAG, "onReceive: Device Change State");
         }
