@@ -55,6 +55,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -310,6 +311,7 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getRealSize(size);
+
         /* virtualDisplay = mediaProjection.createVirtualDisplay("ScreenCapture",
                 WIDTH,
                 HEIGHT,
@@ -319,6 +321,7 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 null,
                 null);
          */
+
         virtualDisplay = mediaProjection.createVirtualDisplay("ScreenCaptureViewer",
                 WIDTH,
                 HEIGHT,
@@ -327,14 +330,6 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 imageReader.getSurface(),
                 null,
                 null);
-
-        imageSender = new ImageSender(Helper.threadGroup, "ImageSender", getApplicationContext());
-        try {
-            imageSender.sleep(0);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        // imageSender.start();
     }
 
 
@@ -346,11 +341,14 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                     byte[] readBuff = (byte[]) message.obj;
                     String tmpMessage = new String(readBuff, 0, message.arg1);
                     // display tmpMessage
-                    listView.setVisibility(View.INVISIBLE);
-                    Bitmap bmp = BitmapFactory.decodeByteArray(readBuff, 0, readBuff.length);
-                    imageView.setVisibility(View.VISIBLE);
-                    imageView.setImageBitmap(bmp);
-                    Toast.makeText(Account.this, "Screen Sharing", Toast.LENGTH_LONG).show();
+                    // listView.setVisibility(View.INVISIBLE);
+                    // Bitmap bmp = BitmapFactory.decodeByteArray(readBuff, 0, readBuff.length);
+                    // imageView.setVisibility(View.VISIBLE);
+                    // imageView.setImageBitmap(bmp);
+                    // Toast.makeText(Account.this, "Screen Sharing", Toast.LENGTH_LONG).show();
+                    if(tmpMessage.equals('1')){
+                        imageSend = false;
+                    }
                     break;
                 case NOT_CONNECTED:
                     Toast.makeText(Account.this, "Screen Recording", Toast.LENGTH_LONG).show();
@@ -422,9 +420,8 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
 
             if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner){
                 Toast.makeText(Account.this, "Host Connected", Toast.LENGTH_SHORT).show();
-                wifiDirectServer = new WifiDirectServer(send, Helper.threadGroup, "Send");
+                wifiDirectServer = new WifiDirectServer(Helper.threadGroup, "Send");
                 wifiDirectServer.start();
-                // imageSender.start();
             }else if(wifiP2pInfo.groupFormed){
                 imageSend = false;
                 Toast.makeText(Account.this, "This is a Host and can't be a Client", Toast.LENGTH_SHORT).show();
@@ -435,11 +432,10 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
     public class WifiDirectServer extends Thread {
         Socket socket;
         ServerSocket serverSocket;
-        Send send;
+        Receive receive;
 
-        public WifiDirectServer(Send send, ThreadGroup group, String name){
+        public WifiDirectServer(ThreadGroup group, String name){
             super(group, name);
-            this.send = send;
         }
 
         @Override
@@ -449,6 +445,9 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 socket = serverSocket.accept();
                 send = new Send(socket);
                 send.start();
+                receive = new Receive(socket, Helper.threadGroup, "Receiver Flag");
+                imageSender = new ImageSender(Helper.threadGroup, "ImageSender", getApplicationContext());
+                imageSender.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -480,6 +479,37 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public class Receive extends Thread{
+        private Socket socket;
+        private InputStream inputStream;
+
+        public Receive(Socket skt, ThreadGroup group, String name) {
+            super(group, name);
+            this.socket = skt;
+            try {
+                inputStream = socket.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+            while (socket != null) {
+                try {
+                    bytes = inputStream.read();
+                    if (bytes > 0) {
+                        handler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

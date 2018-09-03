@@ -13,6 +13,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -27,8 +28,13 @@ import android.widget.Toast;
 
 import com.example.kennck.mirroring.objects.Helper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -56,6 +62,9 @@ public class WifiHandler extends AppCompatActivity {
 
     Client client;
     Receive receive;
+    Send send;
+    boolean receiveFlag = false;
+    Test test;
 
     final int MESSAGE_READ = 1;
     @Override
@@ -72,6 +81,8 @@ public class WifiHandler extends AppCompatActivity {
         connectStatus = (TextView)findViewById(R.id.wifiStatus);
         imageView = (ImageView)findViewById(R.id.imageViewer);
         initWifiDirect();
+        // test = new Test();
+        // test.start();
     }
 
     public void initWifiDirect(){
@@ -94,18 +105,58 @@ public class WifiHandler extends AppCompatActivity {
             switch (message.what){
                 case MESSAGE_READ:
                     byte[] readBuff = (byte[]) message.obj;
-                    String tmpMessage = new String(readBuff, 0, message.arg1);
+                    // String tmpMessage = new String(readBuff, 0, message.arg1);
                     // display tmpMessage
                     listView.setVisibility(View.INVISIBLE);
                     connectStatus.setVisibility(View.INVISIBLE);
                     Bitmap bmp = BitmapFactory.decodeByteArray(readBuff, 0, readBuff.length);
                     imageView.setVisibility(View.VISIBLE);
                     imageView.setImageBitmap(bmp);
+                    receiveFlag = true;
+                    String text = "1";
+                    send.write(text.getBytes());
                     break;
             }
             return false;
         }
     });
+
+    public class Test extends  Thread{
+        String filename;
+        String directory;
+        public Test(){
+            String path;
+            String state = Environment.getExternalStorageState();
+            if(Environment.MEDIA_MOUNTED.equals(state)){
+                path = Environment.getExternalStorageDirectory() + "/DCIM/CAMERA/";
+            }else if(Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)){
+                path = getApplicationContext().getFilesDir() + "/DCIM/CAMERA/";
+            }else {
+                path = getApplicationContext().getFilesDir() + "/DCIM/CAMERA/";
+            }
+            File dir = new File(path);
+            if(!dir.exists()){
+                dir.mkdir();
+            }else{
+                //
+            }
+            directory = path;
+            filename = "IMG_20180827_073621.jpg";
+        }
+
+        @Override
+        public void run() {
+            File image = new File(directory,filename);
+            try {
+                Bitmap bmp = BitmapFactory.decodeStream(new FileInputStream(image));
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                handler.obtainMessage(MESSAGE_READ,stream.toByteArray()).sendToTarget();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -208,6 +259,7 @@ public class WifiHandler extends AppCompatActivity {
     public class Client extends Thread {
         Socket socket;
         String hostAddress;
+
         public Client(InetAddress hostAddress, ThreadGroup threadGroup, String name){
             super(threadGroup, name);
             this.hostAddress = hostAddress.getHostAddress();
@@ -220,12 +272,42 @@ public class WifiHandler extends AppCompatActivity {
                 socket.connect(new InetSocketAddress(hostAddress, Helper.PORT), Helper.TIME_OUT);
                 receive = new Receive(socket, Helper.threadGroup, "Receive");
                 receive.start();
+                send = new Send(socket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    public class Send extends Thread{
+        private Socket socket;
+        private OutputStream outputStream;
+
+        public Send(Socket skt) {
+            this.socket = skt;
+            try {
+                outputStream = socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void run() {
+            // write(null);
+        }
+
+        public void write(byte[] bytes){
+            try {
+                if(bytes != null && receiveFlag == true){
+                    receiveFlag = false;
+                    outputStream.write(bytes);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public class Receive extends Thread{
         private Socket socket;
         private InputStream inputStream;
