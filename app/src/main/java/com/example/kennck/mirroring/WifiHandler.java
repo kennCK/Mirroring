@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -115,6 +116,7 @@ public class WifiHandler extends AppCompatActivity {
                     receiveFlag = true;
                     String text = "1";
                     send.write(text.getBytes());
+                    Log.d(TAG, "HANLDER FOR IMAGE EXECUTED");
                     break;
             }
             return false;
@@ -249,6 +251,7 @@ public class WifiHandler extends AppCompatActivity {
             if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner){
                 Toast.makeText(WifiHandler.this, "This is a Client Side not Host Side", Toast.LENGTH_SHORT).show();
             }else if(wifiP2pInfo.groupFormed){
+                Log.d(TAG, "CLIENT CONNECTED");
                 Toast.makeText(WifiHandler.this, "Client Connected", Toast.LENGTH_SHORT).show();
                 client = new Client(groupOwnerAddress, Helper.threadGroup, "Client Thread");
                 client.start();
@@ -269,6 +272,7 @@ public class WifiHandler extends AppCompatActivity {
         @Override
         public void run() {
             try {
+                Log.d(TAG, "CLIENT THREAD STARTED");
                 socket.connect(new InetSocketAddress(hostAddress, Helper.PORT), Helper.TIME_OUT);
                 receive = new Receive(socket, Helper.threadGroup, "Receive");
                 receive.start();
@@ -299,6 +303,7 @@ public class WifiHandler extends AppCompatActivity {
 
         public void write(byte[] bytes){
             try {
+                Log.d(TAG,"SEND THREAD STARTED ON CLIENT SIDE");
                 if(bytes != null && receiveFlag == true){
                     receiveFlag = false;
                     outputStream.write(bytes);
@@ -324,12 +329,16 @@ public class WifiHandler extends AppCompatActivity {
 
         @Override
         public void run() {
-            byte[] buffer = new byte[1024];
+            Log.d(TAG, "RECEIVE THREAD STARTED ON CLIENT SIDE");
+            byte[] buffer = new byte[1024 * 1000];
             int bytes;
-            while (socket != null) {
+            if (socket != null) {
+                Log.d(TAG, "WHILE LOOP ON IMAGE ON CLIENT SIDE");
                 try {
+                    Log.d(TAG, "TRY CATCH ON IMAGE ON CLIENT SIDE");
                     bytes = inputStream.read();
                     if (bytes > 0) {
+                        Log.d(TAG, "RECEIVE IMAGE ON CLIENT SIDE");
                         handler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                     }
                 } catch (IOException e) {

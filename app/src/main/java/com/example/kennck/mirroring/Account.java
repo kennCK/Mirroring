@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -22,6 +20,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -44,20 +43,16 @@ import android.widget.Toast;
 
 
 import com.example.kennck.mirroring.adapter.VideoAdapter;
-import com.example.kennck.mirroring.network.Send;
-import com.example.kennck.mirroring.network.WifiBroadcastReceiver;
-import com.example.kennck.mirroring.network.WifiDirectMaster;
-import com.example.kennck.mirroring.network.WifiDirectServer;
 import com.example.kennck.mirroring.objects.Helper;
 import com.example.kennck.mirroring.objects.Video;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -71,6 +66,7 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
     Spinner menuSpinner;
     FloatingActionButton addFile;
     ImageView imageView;
+    private final String TAG = "HOST SIDE";
 
 
     SharedPreferences sharedpreferences;
@@ -83,8 +79,8 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
 
     MediaRecorder mediaRecorder;
     final int RECORDCODEREQUEST = 500;
-    private final int WIDTH = 720;
-    private final int HEIGHT = 1280;
+    private final int WIDTH = 180;
+    private final int HEIGHT = 320;
     private final String DIRECTORY = Helper.DIRECTORY;
     int screenDensity;
 
@@ -115,7 +111,9 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
     WifiDirectServer wifiDirectServer;
     Send send;
 
-    Boolean imageSend = false;
+    Boolean imageSend = null;
+
+    Socket serverSkt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +168,7 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
             public void onClick(View v) {
                 // Logout
                 sharedpreferences.edit().clear().commit();
+                mManager.removeGroup(mChannel, null);
                 Intent login = new Intent(Account.this, Login.class);
                 Helper.threadGroup.interrupt();
                 startActivity(login);
@@ -351,6 +350,7 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                     }
                     break;
                 case NOT_CONNECTED:
+                    imageSend = null;
                     Toast.makeText(Account.this, "Screen Recording", Toast.LENGTH_LONG).show();
                     break;
             }
@@ -378,12 +378,14 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
+                imageSend = null;
                 Toast.makeText(Account.this, "Network Discovery Started", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(int i) {
                 initWifiDirect();
+                imageSend = null;
                 Toast.makeText(Account.this, "Network Discovery Starting Failed", Toast.LENGTH_LONG).show();
             }
         });
@@ -420,10 +422,11 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
 
             if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner){
                 Toast.makeText(Account.this, "Host Connected", Toast.LENGTH_SHORT).show();
+                imageSend = false;
                 wifiDirectServer = new WifiDirectServer(Helper.threadGroup, "Send");
                 wifiDirectServer.start();
             }else if(wifiP2pInfo.groupFormed){
-                imageSend = false;
+                imageSend = null;
                 Toast.makeText(Account.this, "This is a Host and can't be a Client", Toast.LENGTH_SHORT).show();
             }
         }
@@ -442,44 +445,39 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         public void run() {
             try {
                 serverSocket = new ServerSocket(Helper.PORT);
+                // serverSocket.setReuseAddress(true);
+                // serverSocket.bind(new InetSocketAddress(Helper.PORT));
                 socket = serverSocket.accept();
-                send = new Send(socket);
-                send.start();
+                serverSkt = socket;
                 receive = new Receive(socket, Helper.threadGroup, "Receiver Flag");
                 imageSender = new ImageSender(Helper.threadGroup, "ImageSender", getApplicationContext());
                 imageSender.start();
+                Log.d(TAG, "SERVER THREAD STARTED");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public class Send extends Thread{
-        private Socket socket;
-        private OutputStream outputStream;
-
-        public Send(Socket skt) {
-            this.socket = skt;
+    private class Send extends AsyncTask<Bitmap, Void, Void> {
+        protected Void doInBackground(Bitmap... bmp) {
             try {
-                outputStream = socket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void run() {
-            // write(null);
-        }
-
-        public void write(byte[] bytes){
-            try {
-                if(bytes != null){
-                    outputStream.write(bytes);
+                OutputStream outputStream = serverSkt.getOutputStream();
+                Bitmap newBmp = bmp[0];
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                newBmp.compress(Bitmap.CompressFormat.PNG, 10, stream);
+                try {
+                    if(stream != null){
+                        Log.d(TAG, "WRITE TO SEND CALLED");
+                        outputStream.write(stream.toByteArray());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return null;
         }
     }
 
@@ -535,7 +533,8 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 @Override
                 public void onImageAvailable(ImageReader imageReader) {
                     Image image = imageReader.acquireLatestImage();
-                    if(image != null && imageSend == false){
+                    if(image != null){
+                        Log.d(TAG, "IMAGE SENDER THREAD STARTED");
                         imageSend = true;
                         final Image.Plane[] planes = image.getPlanes();
                         final ByteBuffer buffer = planes[0].getBuffer();
@@ -544,13 +543,15 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                         int rowPadding = rowStride - pixelStride * WIDTH;
                         Bitmap bmp = Bitmap.createBitmap(WIDTH+rowPadding/pixelStride, HEIGHT, Bitmap.Config.ARGB_8888);
                         bmp.copyPixelsFromBuffer(buffer);
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                        send.write(stream.toByteArray());
+                        // send.write(stream.toByteArray());
+                        new Account.Send().execute(bmp, null, null);
+                        // Log.d(TAG, stream.toByteArray().toString());
                         // handler.obtainMessage(CONNECTED, stream.toByteArray()).sendToTarget();
                         Toast.makeText(Account.this, "Sending", Toast.LENGTH_LONG).show();
-                        image.close();
+                    }else{
+                        Log.d(TAG, "IMAGE SENDER EMPTY THREAD STARTED");
                     }
+                    image.close();
                 }
             }, tHandler);
         }
