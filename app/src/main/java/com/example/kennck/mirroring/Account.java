@@ -68,6 +68,8 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
     ImageView imageView;
     private final String TAG = "HOST SIDE";
 
+    int counter = 0;
+
 
     SharedPreferences sharedpreferences;
     ArrayAdapter <String> spinnerAdapter;
@@ -481,6 +483,18 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         }
     }
 
+    private class SendText extends AsyncTask<String, Void, Void> {
+        protected Void doInBackground(String... str) {
+            try {
+                OutputStream outputStream = serverSkt.getOutputStream();
+                outputStream.write(str[0].getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
     public class Receive extends Thread{
         private Socket socket;
         private InputStream inputStream;
@@ -541,12 +555,15 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                         int pixelStride = planes[0].getPixelStride();
                         int rowStride = planes[0].getRowStride();
                         int rowPadding = rowStride - pixelStride * WIDTH;
-                        Bitmap bmp = Bitmap.createBitmap(WIDTH+rowPadding/pixelStride, HEIGHT, Bitmap.Config.ARGB_8888);
-                        bmp.copyPixelsFromBuffer(buffer);
+                        // Bitmap bmp = Bitmap.createBitmap(WIDTH+rowPadding/pixelStride, HEIGHT, Bitmap.Config.ARGB_8888);
+                        // bmp.copyPixelsFromBuffer(buffer);
                         // send.write(stream.toByteArray());
-                        new Account.Send().execute(bmp, null, null);
+                        // new Account.Send().execute(bmp, null, null);
                         // Log.d(TAG, stream.toByteArray().toString());
                         // handler.obtainMessage(CONNECTED, stream.toByteArray()).sendToTarget();
+                        counter++;
+                        String str = String.valueOf(counter);
+                        new SendText().execute(str, null, null);
                         Toast.makeText(Account.this, "Sending", Toast.LENGTH_LONG).show();
                     }else{
                         Log.d(TAG, "IMAGE SENDER EMPTY THREAD STARTED");

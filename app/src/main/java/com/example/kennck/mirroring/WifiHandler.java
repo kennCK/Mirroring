@@ -48,6 +48,7 @@ public class WifiHandler extends AppCompatActivity {
     public ListView listView;
     public ImageView imageView;
     private final String TAG = "WIFIP2P";
+    public TextView messageHolder;
 
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
@@ -81,6 +82,7 @@ public class WifiHandler extends AppCompatActivity {
         listView = (ListView)findViewById(R.id.whListView);
         connectStatus = (TextView)findViewById(R.id.wifiStatus);
         imageView = (ImageView)findViewById(R.id.imageViewer);
+        messageHolder = (TextView) findViewById(R.id.textSent);
         initWifiDirect();
         // test = new Test();
         // test.start();
@@ -104,7 +106,7 @@ public class WifiHandler extends AppCompatActivity {
         @Override
         public boolean handleMessage(Message message) {
             switch (message.what){
-                case MESSAGE_READ:
+                /* case MESSAGE_READ:
                     byte[] readBuff = (byte[]) message.obj;
                     // String tmpMessage = new String(readBuff, 0, message.arg1);
                     // display tmpMessage
@@ -117,6 +119,15 @@ public class WifiHandler extends AppCompatActivity {
                     String text = "1";
                     send.write(text.getBytes());
                     Log.d(TAG, "HANLDER FOR IMAGE EXECUTED");
+                    break;
+                    */
+                case MESSAGE_READ:
+                    byte[] readBuff = (byte[]) message.obj;
+                    String tmpMessage = new String(readBuff, 0, message.arg1);
+                    listView.setVisibility(View.INVISIBLE);
+                    connectStatus.setVisibility(View.INVISIBLE);
+                    messageHolder.setText(tmpMessage);
+                    messageHolder.setVisibility(View.VISIBLE);
                     break;
             }
             return false;
