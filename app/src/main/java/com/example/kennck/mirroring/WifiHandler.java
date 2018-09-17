@@ -127,6 +127,7 @@ public class WifiHandler extends AppCompatActivity {
                     listView.setVisibility(View.INVISIBLE);
                     connectStatus.setVisibility(View.INVISIBLE);
                     messageHolder.setText(tmpMessage);
+                    Log.d(TAG, "DISPLAY MESSAGE:" + tmpMessage);
                     messageHolder.setVisibility(View.VISIBLE);
                     break;
             }
@@ -287,7 +288,7 @@ public class WifiHandler extends AppCompatActivity {
                 socket.connect(new InetSocketAddress(hostAddress, Helper.PORT), Helper.TIME_OUT);
                 receive = new Receive(socket, Helper.threadGroup, "Receive");
                 receive.start();
-                send = new Send(socket);
+                // send = new Send(socket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
