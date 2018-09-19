@@ -165,7 +165,8 @@ public class WifiHandler extends AppCompatActivity {
                 Bitmap bmp = BitmapFactory.decodeStream(new FileInputStream(image));
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                handler.obtainMessage(MESSAGE_READ,stream.toByteArray()).sendToTarget();
+                String hi = "Hi";
+                handler.obtainMessage(MESSAGE_READ, hi.getBytes()).sendToTarget();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
