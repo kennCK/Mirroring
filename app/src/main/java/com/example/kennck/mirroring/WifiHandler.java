@@ -262,6 +262,8 @@ public class WifiHandler extends AppCompatActivity {
 
             if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner){
                 Toast.makeText(WifiHandler.this, "This is a Client Side not Host Side", Toast.LENGTH_SHORT).show();
+                client = new Client(groupOwnerAddress, Helper.threadGroup, "Client Thread");
+                client.start();
             }else if(wifiP2pInfo.groupFormed){
                 Log.d(TAG, "CLIENT CONNECTED");
                 Toast.makeText(WifiHandler.this, "Client Connected", Toast.LENGTH_SHORT).show();
