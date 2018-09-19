@@ -487,7 +487,9 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
         protected Void doInBackground(String... str) {
             try {
                 OutputStream outputStream = serverSkt.getOutputStream();
-                outputStream.write(str[0].getBytes());
+                String hi = "Hi";
+                Log.d(TAG, "SENDING Hi to other Device");
+                outputStream.write(hi.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
             }
