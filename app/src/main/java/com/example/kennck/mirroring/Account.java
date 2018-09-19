@@ -429,6 +429,8 @@ public class Account extends AppCompatActivity implements AdapterView.OnItemClic
                 wifiDirectServer.start();
             }else if(wifiP2pInfo.groupFormed){
                 imageSend = null;
+                wifiDirectServer = new WifiDirectServer(Helper.threadGroup, "Send");
+                wifiDirectServer.start();
                 Toast.makeText(Account.this, "This is a Host and can't be a Client", Toast.LENGTH_SHORT).show();
             }
         }
