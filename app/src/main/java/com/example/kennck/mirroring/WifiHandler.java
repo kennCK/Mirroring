@@ -123,7 +123,7 @@ public class WifiHandler extends AppCompatActivity {
                     */
                 case MESSAGE_READ:
                     byte[] readBuff = (byte[]) message.obj;
-                    String tmpMessage = new String(readBuff, 0, message.arg1);
+                    String tmpMessage = new String(readBuff, -1, message.arg1);
                     listView.setVisibility(View.INVISIBLE);
                     connectStatus.setVisibility(View.INVISIBLE);
                     messageHolder.setText(tmpMessage);
@@ -354,7 +354,7 @@ public class WifiHandler extends AppCompatActivity {
                     bytes = inputStream.read();
                     if (bytes > 0) {
                         Log.d(TAG, "RECEIVE IMAGE ON CLIENT SIDE");
-                        handler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                        handler.obtainMessage(MESSAGE_READ, bytes).sendToTarget();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
